@@ -27,6 +27,9 @@ extern SemaphoreHandle_t saveCyclesSemaphore;
 extern QueueHandle_t feedingCyclesActuationQueue;
 extern SemaphoreHandle_t feedingDisplaySemaphore;
 
+//Make this a manual semaphore? I made it pass when you press an asterisk
+extern SemaphoreHandle_t timerFeedingSemaphore;
+
 
 
 

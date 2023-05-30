@@ -16,8 +16,8 @@ char currentDate[30];
 char currentTime[30];
 
 //Non-ntp-related variables
-char feedTimeA[30] = "09:00:00 AM";
-char feedTimeB[30] = "07:00:00 PM";
+char feedTimeA[30] = "09:11:15 AM";
+char feedTimeB[30] = "06:28:50 PM";
 char displayBuffer[50];
 char cycleDisplayBuffer[50] = "4";
 boolean display = true;
@@ -71,8 +71,8 @@ void displayTask(void *parameter) {
                     u8g2.drawStr(74, 44, cycleDisplayBuffer);
                 }
                 u8g2.sendBuffer();
-                //I found the delay of 2400 ticks to work best for ending the feeding display and actuation in sync
-                vTaskDelay(2400 / portTICK_PERIOD_MS);
+
+                vTaskDelay(2000 / portTICK_PERIOD_MS);
             }
         } else if (xSemaphoreTake(inputSemaphoreA, 0) == pdTRUE) {
             feedInput(
