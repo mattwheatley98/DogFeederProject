@@ -7,11 +7,8 @@
 
 #endif //DOGFEEDERPROJECT_DISPLAYTASK_H
 
-
-extern SemaphoreHandle_t manualFeedingSemaphore;
 extern SemaphoreHandle_t timerFeedingSemaphore;
-extern QueueHandle_t feedingCyclesQueue;
-
+extern QueueHandle_t displayCyclesQueue;
 extern QueueHandle_t daytimeInputQueueA;
 extern QueueHandle_t daytimeInputQueueB;
 extern SemaphoreHandle_t inputSemaphoreA;
@@ -23,17 +20,10 @@ extern SemaphoreHandle_t blinkSemaphoreB;
 extern SemaphoreHandle_t doneSemaphoreA;
 extern SemaphoreHandle_t doneSemaphoreB;
 extern SemaphoreHandle_t setCyclesSemaphore;
-
 extern TimerHandle_t blinkingCyclesTimer;
 extern SemaphoreHandle_t blinkSemaphoreCycles;
 extern SemaphoreHandle_t saveCyclesSemaphore;
-
-extern QueueHandle_t feedingCyclesActuationQueue;
+extern QueueHandle_t feedingCyclesQueue;
 extern SemaphoreHandle_t feedingDisplaySemaphore;
-
-
-
-
-
 
 void displayTask(void *parameter);

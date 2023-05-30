@@ -7,7 +7,7 @@
 #include "displayTask.h"
 #include <ctime>
 
-//Variables and an object for setting up the display and retrieving the current time from an NTP server
+//Variables and an object for setting up the display and retrieving the current time (EST) from an NTP server
 U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = -18000;
@@ -27,10 +27,8 @@ char countBuffer[10];
 void feedInput(TimerHandle_t blinkingTimerHandle, SemaphoreHandle_t feedBlinkSemaphore, QueueHandle_t daytimeInputQueue,
                char feedTime[], void (*blinkDisplay)(), SemaphoreHandle_t doneSemaphore);
 
-//Makes the AM part of the display blink when triggered
+//Makes the AM and PM parts of the display blink accordingly
 void blinkDisplayA();
-
-//Makes the PM part of the display blink when triggered
 void blinkDisplayB();
 
 //Gets the local time from an NTP server
@@ -42,18 +40,10 @@ void displayTask(void *parameter) {
     u8g2.begin();
     while (1) {
         u8g2.clearBuffer();
-        //Triggers feeding when triggered manually
-        if (xSemaphoreTake(manualFeedingSemaphore, 0) == pdTRUE) {
-            u8g2.setFont(u8g2_font_10x20_tf);
-            u8g2.drawStr(24, 40, "FEEDING!");
-            u8g2.sendBuffer();
-            vTaskDelay(250 / portTICK_PERIOD_MS);
-            //Triggers feeding when the system's current time matching either of the set feeding times
-        } else if (strcmp(currentTime, feedTimeA) == 0 || strcmp(currentTime, feedTimeB) == 0) {
+        if (strcmp(currentTime, feedTimeA) == 0 || strcmp(currentTime, feedTimeB) == 0) {
             xSemaphoreGive(timerFeedingSemaphore);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
             getLocalTime();
-            //PLANNED FEATURE TO SET FEEDING CYCLES (amount of food)
         } else if (xSemaphoreTake(feedingDisplaySemaphore, 0) == pdTRUE) {
             u8g2.setFont(u8g2_font_10x20_tf);
             for (int i = 1; i < (atoi(cycleDisplayBuffer) + 1); ++i) {
@@ -71,7 +61,6 @@ void displayTask(void *parameter) {
                     u8g2.drawStr(74, 44, cycleDisplayBuffer);
                 }
                 u8g2.sendBuffer();
-
                 vTaskDelay(2000 / portTICK_PERIOD_MS);
             }
         } else if (xSemaphoreTake(inputSemaphoreA, 0) == pdTRUE) {
@@ -99,7 +88,7 @@ void displayTask(void *parameter) {
                 if (xSemaphoreTake(blinkSemaphoreCycles, 0) == pdTRUE) {
                     display = !display;
                 }
-                if (xQueueReceive(feedingCyclesQueue, cycleDisplayBuffer, 0) == pdTRUE) {
+                if (xQueueReceive(displayCyclesQueue, cycleDisplayBuffer, 0) == pdTRUE) {
                     Serial.print("From DISPLAY CYCLE: ");
                     Serial.println(cycleDisplayBuffer);
                 }
@@ -123,6 +112,7 @@ void displayTask(void *parameter) {
                     break;
                 }
             }
+            //Default display state
         } else {
             u8g2.setFont(u8g2_font_6x10_tf);
             u8g2.drawStr(0, 10, currentDate);
@@ -134,7 +124,6 @@ void displayTask(void *parameter) {
             u8g2.drawStr(0, 60, "Feed at: ");
             u8g2.drawStr(50, 60, feedTimeB);
             u8g2.sendBuffer();
-
             getLocalTime();
             vTaskDelay(250 / portTICK_PERIOD_MS);
         }

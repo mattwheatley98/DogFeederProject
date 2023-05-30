@@ -28,11 +28,13 @@ char setCycleBuffer[50];
 
 void daytimeButtonPressed(SemaphoreHandle_t inputSemaphore, char key, char timeInput[],
                           QueueHandle_t inputQueue, char daytime[], SemaphoreHandle_t doneSemaphore);
+
 void clearCycleInput(int &count);
 
 void keypadTask(void *parameter) {
     while (1) {
         char key = customKeypad.getKey();
+        //Allows the setting of an AM feeding time
         if (key == 'A') {
             daytimeButtonPressed(
                     inputSemaphoreA,
@@ -42,6 +44,7 @@ void keypadTask(void *parameter) {
                     am,
                     doneSemaphoreA
             );
+            //Allows the setting of a PM feeding time
         } else if (key == 'B') {
             daytimeButtonPressed(
                     inputSemaphoreB,
@@ -51,12 +54,14 @@ void keypadTask(void *parameter) {
                     pm,
                     doneSemaphoreB
             );
+            //Allows the setting of feeding cycles
         } else if (key == 'C') {
             vTaskSuspend(feedingTaskHandle);
             xSemaphoreGive(setCyclesSemaphore);
             int count = 0;
             while (1) {
                 key = customKeypad.getKey();
+                //Clears cycles if above 20
                 if (atoi(setCycleBuffer) > 20) {
                     clearCycleInput(count);
                     //Continues so that count isn't incremented
@@ -79,14 +84,12 @@ void keypadTask(void *parameter) {
                         continue;
                     }
                     count++;
+                    //Sends the number of cycles to queues relating to the display and feeding tasks accordingly
+                    xQueueSend(displayCyclesQueue, setCycleBuffer, 0);
                     xQueueSend(feedingCyclesQueue, setCycleBuffer, 0);
-                    xQueueSend(feedingCyclesActuationQueue, setCycleBuffer, 0);
                 }
             }
-        } else if (key == 'D') {
-            xSemaphoreGive(doneSemaphoreA);
-            memset(setTimeBuffer, 0, sizeof(setTimeBuffer));
-            vTaskResume(feedingTaskHandle);
+            //Triggers a manual feeding
         } else if (key == '*') {
             xSemaphoreGive(timerFeedingSemaphore);
         }
@@ -133,11 +136,12 @@ void daytimeButtonPressed(SemaphoreHandle_t inputSemaphore, char key, char timeI
     }
 }
 
+//Function that clears the set number of cycles and updates the display accordingly
 void clearCycleInput(int &count) {
     memset(setCycleBuffer, 0, sizeof(setCycleBuffer));
     setCycleBuffer[0] = '1';
+    xQueueSend(displayCyclesQueue, setCycleBuffer, 0);
     xQueueSend(feedingCyclesQueue, setCycleBuffer, 0);
-    xQueueSend(feedingCyclesActuationQueue, setCycleBuffer, 0);
     count = 0;
 }
 

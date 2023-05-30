@@ -6,12 +6,11 @@
 #include "feedingTask.h"
 #include "../../.pio/libdeps/esp32dev/ESP32Servo/src/ESP32Servo.h"
 
-#define POTENTIOMETER_PIN 34
 #define SERVO_PIN_OPENER 13
 #define SERVO_PIN_PUSHER 12
 
-char cycleActuationBuffer[50] = "4";
-
+//Number of cycles
+char cycles[50] = "4";
 
 //Servo object
 Servo servoOpener;
@@ -23,17 +22,16 @@ void feedingTask(void *parameter) {
     vTaskDelay(250 / portTICK_PERIOD_MS);
 
     while(1) {
-        //Reads the value from the potentiometer and divides the 12 bit unsigned number by 16
-        //to have a 255 maximum for the DC motor's duty cycle (can't go higher, per documentation)
-        if (xQueueReceive(feedingCyclesActuationQueue, cycleActuationBuffer, 0) == pdTRUE) {
-            Serial.println("Received from FEEDING TASK");
+        //Receives cycles input from the keypad task and prints to the serial monitor upon receival
+        if (xQueueReceive(feedingCyclesQueue, cycles, 0) == pdTRUE) {
+            Serial.println("Received cycles from keypad task!");
         }
+        //Actuates the servo motors to perform feedings based on the number of cycles
         if(xSemaphoreTake(timerFeedingSemaphore, 0)) {
             vTaskSuspend(keypadTaskHandle);
             servoOpener.write(15);
             xSemaphoreGive(feedingDisplaySemaphore);
-            for (int i = 0; i < atoi(cycleActuationBuffer); ++i) {
-                servoOpener.write(15);
+            for (int i = 0; i < atoi(cycles); ++i) {
                 servoPusher.write(90);
                 vTaskDelay(500   / portTICK_PERIOD_MS);
                 servoPusher.write(180);
@@ -43,7 +41,7 @@ void feedingTask(void *parameter) {
                 servoPusher.write(0);
                 vTaskDelay(500 / portTICK_PERIOD_MS);
             }
-            //Default servo and DC motor state
+            //Default servo opener state
         } else {
             servoOpener.write(90);
             vTaskDelay(100 / portTICK_PERIOD_MS);

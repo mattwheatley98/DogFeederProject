@@ -4,73 +4,72 @@
 #include "../lib/src/keypadTask.h"
 #include <WiFi.h>
 
-//Handles relating to feedingTask
-SemaphoreHandle_t manualFeedingSemaphore;
-SemaphoreHandle_t timerFeedingSemaphore;
-QueueHandle_t feedingCyclesQueue;
+QueueHandle_t feedingCyclesQueue; //Queue for passing the number of feeding cycles from keypadTask to feedingTask
+QueueHandle_t displayCyclesQueue; //Queue for passing the number of feeding cycles from keypadTask to displayTask
+QueueHandle_t daytimeInputQueueA; //Queue for AM feeding time input
+QueueHandle_t daytimeInputQueueB; //Queue for PM feeding time input
+SemaphoreHandle_t timerFeedingSemaphore; //Semaphore for triggering feedings
+SemaphoreHandle_t inputSemaphoreA; //Semaphore to trigger AM feeding inputs
+SemaphoreHandle_t inputSemaphoreB; //Semaphore to trigger PM feeding inputs
+SemaphoreHandle_t blinkSemaphoreA; //Semaphore to signal AM display blinking
+SemaphoreHandle_t blinkSemaphoreB; //Semaphore to signal PM display blinking
+SemaphoreHandle_t blinkSemaphoreCycles; //Semaphore to signal cycle setting display blinking
+SemaphoreHandle_t doneSemaphoreA; //Semaphore to signal that AM time input has completed
+SemaphoreHandle_t doneSemaphoreB; //Semaphore to signal that PM time input has completed
+SemaphoreHandle_t setCyclesSemaphore; //Semaphore to signal the setting of feeding cycles
+SemaphoreHandle_t saveCyclesSemaphore; //Semaphore that signals when cycles are to be saved
+SemaphoreHandle_t feedingDisplaySemaphore; //Semaphore that signals to the display that feeding began
 
-//Handles relating to keypadTask and displayTask
-QueueHandle_t daytimeInputQueueA;
-QueueHandle_t daytimeInputQueueB;
-SemaphoreHandle_t inputSemaphoreA;
-SemaphoreHandle_t inputSemaphoreB;
-SemaphoreHandle_t blinkSemaphoreA;
-SemaphoreHandle_t blinkSemaphoreB;
-SemaphoreHandle_t doneSemaphoreA;
-SemaphoreHandle_t doneSemaphoreB;
-TimerHandle_t blinkingTimerA;
-TimerHandle_t blinkingTimerB;
-SemaphoreHandle_t setCyclesSemaphore;
-SemaphoreHandle_t saveCyclesSemaphore;
-TimerHandle_t blinkingCyclesTimer;
-SemaphoreHandle_t blinkSemaphoreCycles;
-SemaphoreHandle_t feedingDisplaySemaphore;
-
-//Task handles for suspension
+//Handles used for task suspension
 TaskHandle_t feedingTaskHandle;
 TaskHandle_t keypadTaskHandle;
 
-QueueHandle_t feedingCyclesActuationQueue;
+//Timer handles for blinking
+TimerHandle_t blinkingTimerA;
+TimerHandle_t blinkingTimerB;
+TimerHandle_t blinkingCyclesTimer;
 
 const char *ssid = "REDACTED";
 const char *password = "REDACTED";
 
-void timerCallbackA(TimerHandle_t xTimer) {
-    xSemaphoreGive(blinkSemaphoreA);
-    Serial.println("Timer A!");
-}
+//Function that uses a timer's ID to determine which semaphore to send and which serial message to print
+void timerCallback(TimerHandle_t xTimer) {
+    int timerId = (int) pvTimerGetTimerID(xTimer);
 
-void timerCallbackB(TimerHandle_t xTimer) {
-    xSemaphoreGive(blinkSemaphoreB);
-    Serial.println("Timer B!");
-}
-
-void timerCallbackCycles(TimerHandle_t xTimer) {
-    xSemaphoreGive(blinkSemaphoreCycles);
-    Serial.println("Cycles Timer!");
+    switch (timerId) {
+        case 1:
+            xSemaphoreGive(blinkSemaphoreA);
+            Serial.println("Timer A!");
+            break;
+        case 2:
+            xSemaphoreGive(blinkSemaphoreB);
+            Serial.println("Timer B!");
+            break;
+        case 3:
+            xSemaphoreGive(blinkSemaphoreCycles);
+            Serial.println("Cycles Timer!");
+            break;
+    }
 }
 
 void setup() {
     Serial.begin(9600);
 
-    manualFeedingSemaphore = xSemaphoreCreateBinary();
-    timerFeedingSemaphore = xSemaphoreCreateBinary();
     feedingCyclesQueue = xQueueCreate(3, 20 * sizeof(char));
-
+    displayCyclesQueue = xQueueCreate(3, 20 * sizeof(char));
     daytimeInputQueueA = xQueueCreate(5, 20 * sizeof(char));
     daytimeInputQueueB = xQueueCreate(5, 20 * sizeof(char));
+    timerFeedingSemaphore = xSemaphoreCreateBinary();
     inputSemaphoreA = xSemaphoreCreateBinary();
     inputSemaphoreB = xSemaphoreCreateBinary();
     blinkSemaphoreA = xSemaphoreCreateBinary();
     blinkSemaphoreB = xSemaphoreCreateBinary();
+    blinkSemaphoreCycles = xSemaphoreCreateBinary();
     doneSemaphoreA = xSemaphoreCreateBinary();
     doneSemaphoreB = xSemaphoreCreateBinary();
     setCyclesSemaphore = xSemaphoreCreateBinary();
-    blinkSemaphoreCycles = xSemaphoreCreateBinary();
     saveCyclesSemaphore = xSemaphoreCreateBinary();
     feedingDisplaySemaphore = xSemaphoreCreateBinary();
-
-    feedingCyclesActuationQueue = xQueueCreate(3, 20 * sizeof(char));
 
     //Begin connecting to WiFi and print a message if successful
     WiFi.begin(ssid, password);
@@ -81,28 +80,6 @@ void setup() {
     }
     Serial.println("Connected to WiFi network!");
 
-    //Synchronizes blinking for the displays when feeding times are being set
-    blinkingTimerA = xTimerCreate(
-            "Blinking Timer A",
-            500 / portTICK_PERIOD_MS,
-            pdTRUE,
-            (void *) 0,
-            timerCallbackA
-    );
-    blinkingTimerB = xTimerCreate(
-            "Blinking Timer B",
-            500 / portTICK_PERIOD_MS,
-            pdTRUE,
-            (void *) 1,
-            timerCallbackB
-    );
-    blinkingCyclesTimer = xTimerCreate(
-            "Blinking Cycles Timer",
-            500 / portTICK_PERIOD_MS,
-            pdTRUE,
-            (void *) 2,
-            timerCallbackCycles
-    );
     xTaskCreate(
             feedingTask,
             "Feeding Task",
@@ -126,6 +103,28 @@ void setup() {
             nullptr,
             0,
             &keypadTaskHandle
+    );
+    //Timers that synchronize blinking on the display (first two for setting time, third one for setting cycles)
+    blinkingTimerA = xTimerCreate(
+            "Blinking Timer A",
+            500 / portTICK_PERIOD_MS,
+            pdTRUE,
+            (void *) 1,
+            timerCallback
+    );
+    blinkingTimerB = xTimerCreate(
+            "Blinking Timer B",
+            500 / portTICK_PERIOD_MS,
+            pdTRUE,
+            (void *) 2,
+            timerCallback
+    );
+    blinkingCyclesTimer = xTimerCreate(
+            "Blinking Cycles Timer",
+            500 / portTICK_PERIOD_MS,
+            pdTRUE,
+            (void *) 3,
+            timerCallback
     );
 }
 
