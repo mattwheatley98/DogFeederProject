@@ -17,7 +17,7 @@ char hexaKeys[ROWS][COLS] = {
         {'*', '0', '#', 'D'}
 };
 uint8_t rowPins[ROWS] = {23, 19, 18, 5};
-uint8_t colPins[COLS] = {4, 15, 33, 32};
+uint8_t colPins[COLS] = {32, 33, 15, 4};
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 //Variables and a buffer that are passed as arguments to daytimeButtonPressed
@@ -87,6 +87,8 @@ void keypadTask(void *parameter) {
             xSemaphoreGive(doneSemaphoreA);
             memset(setTimeBuffer, 0, sizeof(setTimeBuffer));
             vTaskResume(feedingTaskHandle);
+        } else if (key == '*') {
+            xSemaphoreGive(timerFeedingSemaphore);
         }
         vTaskResume(feedingTaskHandle);
     }

@@ -32,7 +32,6 @@ TaskHandle_t keypadTaskHandle;
 
 QueueHandle_t feedingCyclesActuationQueue;
 
-
 const char *ssid = "REDACTED";
 const char *password = "REDACTED";
 
