@@ -13,29 +13,33 @@ The main features of this project include:
 Please refer below for demonstrations of each feature:
 
 ## Servo Motor Dog Food Dispensing
-Bottom View  | Top View
+Dispenser Bottom View  | Dispenser Interior View
 ------------- | -------------
-<img src="GIF HERE" width = 350 height = 700>  |  <img src="GIF HERE" width = 350 height = 700>
+<video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/a7e2594f-a638-4d8a-a059-5182f93cad6d" width = 350 height = 700>  |  <video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/1b1ed19d-edc2-4e5a-a4d0-94e60f004345" width = 350 height = 700>
 
-Bottom View With Food | Top View With Food
+Dispenser Bottom View With Food | Dispenser Interior View With Food
 ------------- | -------------
-<img src="GIF HERE" width = 350 height = 700>  |  <img src="GIF HERE" width = 350 height = 700>
+<video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/5355436c-a451-480f-abcc-7063f2a4b282" width = 350 height = 700>  |  <video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/41929ad5-1d2b-4b6f-8303-fa8b9582ef92" width = 350 height = 700>
 
 ## Gui With an OLED I2C Display
 Main Display  | Feeding Display
 ------------- | -------------
-<img src="GIF HERE" width = 350 height = 700>  |  <img src="GIF HERE" width = 350 height = 700>
+<video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/338d4b50-2ee8-41c4-a095-ec81d2848037" width = 350 height = 700>  |  <video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/cc475929-43db-46f0-a914-dc871d3ef205" width = 350 height = 700>
 
 ## Keypad for Time and Feeding Cycle Input
 AM Time Input  | PM Time Input
 ------------- | ------------- 
-<img src="GIF HERE" width = 350 height = 700>  |  <img src="GIF HERE" width = 350 height = 700>
+<video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/6cca6f23-390f-4df5-a4c6-4cd70d6571af" width = 350 height = 700>  |  <video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/09fd565d-faba-40c9-8f9b-f44c6ff0ac68" width = 350 height = 700>
 
-Cycle Input  | Clear Cycle Input (Cannot Be Above Twenty)
+Timed Feeding  | Cycle Input
 ------------- | -------------
-<img src="GIF HERE" width = 350 height = 700>  |  <img src="GIF HERE" width = 350 height = 700>
+<video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/eeeee752-39c6-48b5-a4c0-4f23549c6279" width = 350 height = 700>  |  <video src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/a7f8c359-3b06-465d-bc76-71eb2b5f7f2c" width = 350 height = 700>
 
 ## Custom Wiring
-Inside View  | Outside View
+Front View  | Back View
 ------------- | -------------
-<img src="GIF HERE" width = 350 height = 700>  |  <img src="GIF HERE" width = 350 height = 700>
+<img src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/8ceba52b-055f-46bd-bf47-3d52b0bd453a" width = 350 height = 700>  |  <img src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/02386abf-e8d4-494d-9c91-f922450209e8" width = 350 height = 700>
+
+Interior View  | Bottom View
+------------- | -------------
+<img src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/d84f628a-f0d1-4f96-bef3-596bb5e7c91b" width = 350 height = 700>  |  <img src="https://github.com/mattwheatley98/DogFeederProject/assets/113391095/9c88be1c-c0b7-434d-b9e4-c116a7f9234e" width = 350 height = 700>
