@@ -114,8 +114,8 @@ void displayTask(void *parameter) {
             }
             //Default display state
         } else {
-            u8g2.setFont(u8g2_font_6x10_tf);
-            u8g2.drawStr(0, 10, currentDate);
+            u8g2.setFont(u8g2_font_4x6_tf);
+            u8g2.drawStr(18, 10, currentDate);
             u8g2.setFont(u8g2_font_10x20_tf);
             u8g2.drawStr(8, 32, currentTime);
             u8g2.setFont(u8g2_font_6x10_tf);
@@ -168,8 +168,8 @@ void feedInput(TimerHandle_t blinkingTimerHandle, SemaphoreHandle_t feedBlinkSem
 
 //Responsible for blinking the AM feeding time
 void blinkDisplayA() {
-    u8g2.setFont(u8g2_font_6x10_tf);
-    u8g2.drawStr(0, 10, currentDate);
+    u8g2.setFont(u8g2_font_4x6_tf);
+    u8g2.drawStr(18, 10, currentDate);
     u8g2.setFont(u8g2_font_10x20_tf);
     u8g2.drawStr(8, 32, currentTime);
     u8g2.setFont(u8g2_font_6x10_tf);
@@ -183,8 +183,8 @@ void blinkDisplayA() {
 
 //Responsible for blinking the PM feeding time
 void blinkDisplayB() {
-    u8g2.setFont(u8g2_font_6x10_tf);
-    u8g2.drawStr(0, 10, currentDate);
+    u8g2.setFont(u8g2_font_4x6_tf);
+    u8g2.drawStr(18, 10, currentDate);
     u8g2.setFont(u8g2_font_10x20_tf);
     u8g2.drawStr(8, 32, currentTime);
     u8g2.setFont(u8g2_font_6x10_tf);
