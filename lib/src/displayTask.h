@@ -2,10 +2,7 @@
 // Created by matt on 5/10/23.
 //
 
-#ifndef DOGFEEDERPROJECT_DISPLAYTASK_H
-#define DOGFEEDERPROJECT_DISPLAYTASK_H
-
-#endif //DOGFEEDERPROJECT_DISPLAYTASK_H
+#pragma once
 
 extern SemaphoreHandle_t timerFeedingSemaphore;
 extern QueueHandle_t displayCyclesQueue;
