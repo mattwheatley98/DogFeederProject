@@ -2,10 +2,7 @@
 // Created by matt on 5/12/23.
 //
 
-#ifndef DOGFEEDERPROJECT_KEYPADTASK_H
-#define DOGFEEDERPROJECT_KEYPADTASK_H
-
-#endif //DOGFEEDERPROJECT_KEYPADTASK_H
+#pragma once
 
 extern TaskHandle_t feedingTaskHandle;
 extern QueueHandle_t daytimeInputQueueA;
